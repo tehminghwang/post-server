@@ -39,10 +39,11 @@ app.get("/api", (req, res) => {
 
 
 /* This group of functions is for posts table only */
+/* There is another set of functions below with join between tables */
 
 // dynamic get posts based on specified query fields, example usage below
 // this should cover all cases
-// http://127.0.0.1:3001/api/related-posts?postid=1&categoryid=1&userid=0001&visibility=1&active=1
+// http://127.0.0.1:3001/api/related-posts?postid=1&interestid=1&userid=0001&visibility=1&active=1
 // http://127.0.0.1:3001/api/related-posts?userid=0001&active=1&createTimestamp=2024-02-19T00:00:00
 const getRelatedPosts = async (queryParameters) => {
     let baseQuery = "SELECT * FROM posts WHERE 1=1";
@@ -59,9 +60,9 @@ const getRelatedPosts = async (queryParameters) => {
         queryParams.push(queryParameters.userid);
     }
 	
-	if (queryParameters.categoryid) {
-        baseQuery += " AND categoryid = ?";
-        queryParams.push(queryParameters.categoryid);
+	if (queryParameters.interestid) {
+        baseQuery += " AND interestid = ?";
+        queryParams.push(queryParameters.interestid);
     }
 
     if ('visibility' in queryParameters) { // Explicitly checking for presence to allow filtering by visibility=0
@@ -226,18 +227,18 @@ app.get("/api/posts/latestcreation", async (req, res) => {
 
 /* This group of functions is for joining tables
 Table Schema: 
-posts (postid, userid, create_timestamp, last_update_timestamp, categoryid, header, 
+posts (postid, userid, create_timestamp, last_update_timestamp, interestid, header, 
 description, visibility, active)
-category (categoryid, category)
+interest (interestid, interest)
 likes (postid, like_userid)
 users (userid, firstname, lastname, universityid)
 universities (universityid, university)
 
 Output: 
-postid, userid, create_timestamp, last_update_timestamp, categoryid, header, 
+postid, userid, create_timestamp, last_update_timestamp, interestid, header, 
 description, visibility, active, number_of_likes (for each postid, count the number of unique like_userid), universityid,
 university (using posts' userid to find users' userid to match the universityid with the universities table to find university),
-category (using posts'categoryid to find category in category table by matching categoryid),
+interest (using posts'interestid to find interest in interest table by matching interestid),
 firstname (matched using userid), lastname (matched using userid)
 */
 
@@ -250,7 +251,7 @@ const getEnhancedPosts = async () => {
                 p.userid, 
                 p.create_timestamp, 
                 p.last_update_timestamp, 
-                p.categoryid, 
+                p.interestid, 
                 p.header, 
                 p.description, 
                 p.visibility, 
@@ -258,7 +259,7 @@ const getEnhancedPosts = async () => {
                 COUNT(DISTINCT l.like_userid) AS number_of_likes, 
                 u.universityid, 
                 un.university, 
-                c.category
+                c.interest
             FROM 
                 posts p
             LEFT JOIN 
@@ -268,9 +269,9 @@ const getEnhancedPosts = async () => {
             JOIN 
                 universities un ON u.universityid = un.universityid
             JOIN 
-                category c ON p.categoryid = c.categoryid
+                interest c ON p.interestid = c.interestid
             GROUP BY 
-                p.postid, u.universityid, un.university, c.category
+                p.postid, u.universityid, un.university, c.interest
             ORDER BY 
                 p.postid DESC;`;
 
@@ -297,10 +298,10 @@ app.get("/api/enhancedposts", async (req, res) => {
 const getEnhancedRelatedPosts = async (queryParameters) => {
     let baseQuery = `
         SELECT 
-            p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.categoryid, 
+            p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.interestid, 
             p.header, p.description, p.visibility, p.active, 
             COUNT(DISTINCT l.like_userid) AS number_of_likes, 
-            u.firstname, u.lastname, u.universityid, un.university, c.category
+            u.firstname, u.lastname, u.universityid, un.university, c.interest
         FROM 
             posts p
         LEFT JOIN 
@@ -310,7 +311,7 @@ const getEnhancedRelatedPosts = async (queryParameters) => {
         INNER JOIN 
             universities un ON u.universityid = un.universityid
         INNER JOIN 
-            category c ON p.categoryid = c.categoryid
+            interest c ON p.interestid = c.interestid
     `;
     const queryParams = [];
 
@@ -327,9 +328,9 @@ const getEnhancedRelatedPosts = async (queryParameters) => {
         queryParams.push(queryParameters.userid);
     }
 
-    if (queryParameters.categoryid) {
-        baseQuery += " AND p.categoryid = ?";
-        queryParams.push(queryParameters.categoryid);
+    if (queryParameters.interestid) {
+        baseQuery += " AND p.interestid = ?";
+        queryParams.push(queryParameters.interestid);
     }
 
     if ('visibility' in queryParameters) {
@@ -352,7 +353,7 @@ const getEnhancedRelatedPosts = async (queryParameters) => {
         queryParams.push(queryParameters.updateTimestamp);
     }
 
-    baseQuery += " GROUP BY p.postid, u.firstname, u.lastname, u.universityid, un.university, c.category";
+    baseQuery += " GROUP BY p.postid, u.firstname, u.lastname, u.universityid, un.university, c.interest";
 
     try {
         const [results] = await pool.query(baseQuery, queryParams);
@@ -377,10 +378,10 @@ app.get("/api/enhanced-related-posts", async (req, res) => {
 const getEnhancedxPosts = async (queryParameters) => {
     let baseQuery = `
         SELECT 
-            p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.categoryid, 
+            p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.interestid, 
             p.header, p.description, p.visibility, p.active, 
             COUNT(DISTINCT l.like_userid) AS number_of_likes, 
-            u.firstname, u.lastname, u.universityid, un.university, c.category
+            u.firstname, u.lastname, u.universityid, un.university, c.interest
         FROM 
             posts p
         LEFT JOIN 
@@ -390,7 +391,7 @@ const getEnhancedxPosts = async (queryParameters) => {
         INNER JOIN 
             universities un ON u.universityid = un.universityid
         INNER JOIN 
-            category c ON p.categoryid = c.categoryid
+            interest c ON p.interestid = c.interestid
     `;
     const queryParams = [];
 
@@ -405,9 +406,9 @@ const getEnhancedxPosts = async (queryParameters) => {
 		queryParams.push(queryParameters.userid);
 	}
 
-	if (queryParameters.categoryid) {
-		baseQuery += " AND p.categoryid = ?";
-		queryParams.push(queryParameters.categoryid);
+	if (queryParameters.interestid) {
+		baseQuery += " AND p.interestid = ?";
+		queryParams.push(queryParameters.interestid);
 	}
 
 	if ('visibility' in queryParameters) { // Explicitly checking for presence to allow filtering by visibility=0
@@ -430,7 +431,7 @@ const getEnhancedxPosts = async (queryParameters) => {
 		queryParams.push(queryParameters.updateTimestamp);
 	}
 
-    baseQuery += " GROUP BY p.postid, u.firstname, u.lastname, u.universityid, un.university, c.category";
+    baseQuery += " GROUP BY p.postid, u.firstname, u.lastname, u.universityid, un.university, c.interest";
 
     // Determine the sorting field and order
     const validSortFields = ['p.postid', 'p.create_timestamp', 'p.last_update_timestamp'];
@@ -477,10 +478,10 @@ const getEnhancedLatestUpdatePosts = async (numberOfPosts) => {
     try {
         const query = `
             SELECT 
-                p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.categoryid, 
+                p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.interestid, 
                 p.header, p.description, p.visibility, p.active, 
                 COUNT(DISTINCT l.like_userid) AS number_of_likes, 
-                u.firstname, u.lastname, u.universityid, un.university, c.category
+                u.firstname, u.lastname, u.universityid, un.university, c.interest
             FROM 
                 posts p
             LEFT JOIN 
@@ -490,11 +491,11 @@ const getEnhancedLatestUpdatePosts = async (numberOfPosts) => {
             INNER JOIN 
                 universities un ON u.universityid = un.universityid
             INNER JOIN 
-                category c ON p.categoryid = c.categoryid
+                interest c ON p.interestid = c.interestid
             WHERE 
                 p.active = 1 AND p.visibility = 1
             GROUP BY 
-                p.postid, u.firstname, u.lastname, u.universityid, un.university, c.category
+                p.postid, u.firstname, u.lastname, u.universityid, un.university, c.interest
             ORDER BY 
                 p.last_update_timestamp DESC
             LIMIT 
@@ -526,10 +527,10 @@ const getEnhancedLatestCreationPosts = async (numberOfPosts) => {
     try {
         const query = `
             SELECT 
-                p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.categoryid, 
+                p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.interestid, 
                 p.header, p.description, p.visibility, p.active, 
                 COUNT(DISTINCT l.like_userid) AS number_of_likes, 
-                u.firstname, u.lastname, u.universityid, un.university, c.category
+                u.firstname, u.lastname, u.universityid, un.university, c.interest
             FROM 
                 posts p
             LEFT JOIN 
@@ -539,11 +540,11 @@ const getEnhancedLatestCreationPosts = async (numberOfPosts) => {
             INNER JOIN 
                 universities un ON u.universityid = un.universityid
             INNER JOIN 
-                category c ON p.categoryid = c.categoryid
+                interest c ON p.interestid = c.interestid
             WHERE 
                 p.active = 1 AND p.visibility = 1
             GROUP BY 
-                p.postid, u.firstname, u.lastname, u.universityid, un.university, c.category
+                p.postid, u.firstname, u.lastname, u.universityid, un.university, c.interest
             ORDER BY 
                 p.create_timestamp DESC
             LIMIT 
@@ -566,6 +567,66 @@ app.get("/api/posts/enhancedlatestcreation", async (req, res) => {
         res.json({ posts });
     } catch (error) {
         console.error("Error fetching latest created posts:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+/* This group of functions deal with comments
+Table Schema: 
+comments (commentid, postid, comment_userid, comment_timestamp)
+*/
+const getComments = async (postid) => {
+    try {
+        const query = "SELECT * FROM comments WHERE postid = ?";
+        const [results] = await pool.query(query, [postid]);
+        return results;
+    } catch (error) {
+        throw error;
+    }
+};
+
+app.get("/api/comments", async (req, res) => {
+    // Get the postid from query parameters
+    const { postid } = req.query;
+
+    if (!postid) {
+        return res.status(400).json({ error: "Missing required postid query parameter." });
+    }
+
+    try {
+        const comments = await getComments(postid);
+        res.json({ comments });
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+
+// POST comments 
+app.post("/api/comments", async (req, res) => {
+    // Extract comment details from the request body
+    const { postid, comment_userid, comment } = req.body;
+
+    if (!postid || !comment_userid || !comment) {
+        return res.status(400).json({ error: "Missing required comment fields." });
+    }
+
+    try {
+        // Use current timestamp for comment_timestamp
+        const comment_timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        // Insert the comment into the database
+        const [result] = await pool.query(
+            "INSERT INTO comments (postid, comment_userid, comment_timestamp, comment) VALUES (?, ?, ?, ?)",
+            [postid, comment_userid, comment_timestamp, comment]
+        );
+
+        // Send success response
+        res.status(201).json({ message: "Comment added successfully", commentId: result.insertId });
+    } catch (error) {
+        console.error("Error posting comment:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
