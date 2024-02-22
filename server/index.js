@@ -376,7 +376,10 @@ app.get("/api/enhanced-related-posts", async (req, res) => {
 
 // Get limited number of posts, dynamic filter sorting desc/asce for postid, create_timestamp, last_update_timestamp 
 const getEnhancedxPosts = async (queryParameters) => {
-    let baseQuery = `
+    const limit1 = queryParameters.num ? parseInt(queryParameters.num, 10) : 10;
+    const page = queryParameters.page ? parseInt(queryParameters.page, 10) : 1;
+    const offset = (page - 1) * limit1;
+	let baseQuery = `
         SELECT 
             p.postid, p.userid, p.create_timestamp, p.last_update_timestamp, p.interestid, 
             p.header, p.description, p.visibility, p.active, 
@@ -443,24 +446,22 @@ const getEnhancedxPosts = async (queryParameters) => {
     baseQuery += ` ORDER BY ${sortField} ${sortOrder}`;
 
     // Set the limit for the number of posts to retrieve
-    const limit = queryParameters.num ? parseInt(queryParameters.num, 10) : 10; // Default to 10 if not specified
-    queryParams.push(limit);
+    //const limit = queryParameters.num ? parseInt(queryParameters.num, 10) : 10; // Default to 10 if not specified
+    //queryParams.push(limit);
 
-    baseQuery += " LIMIT ?";
+	baseQuery += " LIMIT ?, ?"; 
+    queryParams.push(offset, limit1);
 
     try {
-        // Fetch the last 'n' posts in the inverted order
         const [results] = await pool.query(baseQuery, queryParams);
-
-        // If the original sortOrder was 'asc', we need to reverse the results since they were fetched in 'desc' order
-        if (queryParameters.sortOrder === 'asc') {
+		if (queryParameters.sortOrder === 'asc') {
             results.reverse();
         }
-
         return results;
     } catch (error) {
         throw error;
     }
+
 };
 
 app.get("/api/enhanced-xposts", async (req, res) => {
