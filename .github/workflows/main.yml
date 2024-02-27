@@ -46,8 +46,8 @@ jobs:
 
       - name: Recording image names
         run: |
-        echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
-        echo "PROD_POSTSERVER_IMAGE=${PROD_POSTSERVER_IMAGE}"
+          echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
+          echo "PROD_POSTSERVER_IMAGE=${PROD_POSTSERVER_IMAGE}"
 
   build-and-push:
     needs: semantic-versioning
