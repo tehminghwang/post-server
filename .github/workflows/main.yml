@@ -72,8 +72,10 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build ./server -f ./server/Dockerfile -t ${{ env.CI_POSTSERVER_IMAGE }}
-          docker push ${{ env.CI_POSTSERVER_IMAGE }}
+          docker build ./server -f ./server/Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest
+          docker push ghcr.io/tehminghwang/postserver-ci:latest
+
+      # ${{ env.CI_POSTSERVER_IMAGE }}
 
       # Optionally, build and push production images similarly, using PROD_POSTSERVER_IMAGE
 
