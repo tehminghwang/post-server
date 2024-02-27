@@ -44,6 +44,13 @@ jobs:
           echo "CI_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-ci:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
           echo "PROD_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-prod:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
 
+      - name: Set fallback tag if necessary
+        if: steps.tag_version.outputs.new_tag == ''
+        run: |
+          echo "Fallback tag is being used because no new tag was generated."
+          echo "CI_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-ci:latest" >> $GITHUB_ENV
+          echo "PROD_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-prod:latest" >> $GITHUB_ENV
+
       - name: Recording image names
         run: |
           echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
