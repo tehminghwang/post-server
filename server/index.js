@@ -17,7 +17,8 @@ const pool = mysql.createPool({
 });
 
 // FOR DEVELOPMENT PURPOSES
-const IP_ADDRESS = "127.0.0.1";
+//const IP_ADDRESS = "127.0.0.1";
+const IP_ADDRESS = "0.0.0.0";
 const PORT = process.env.PORT || 3001;
 
 const app = express();
