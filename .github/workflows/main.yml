@@ -22,6 +22,7 @@ jobs:
     - run: npm test
   
   semantic-versioning:
+    needs: build-and-unit-tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -37,11 +38,16 @@ jobs:
           default_bump: patch # Default to 'patch' but can be overridden by commit message
           release_branches: main
           with_v: true # Prefix the tag with 'v', e.g., 'v1.4.2'
-
+      
       - name: Set up Docker Image Env
         run: |
           echo "CI_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-ci:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
           echo "PROD_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-prod:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_ENV
+
+      - name: Recording image names
+        run: |
+        echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
+        echo "PROD_POSTSERVER_IMAGE=${PROD_POSTSERVER_IMAGE}"
 
   build-and-push:
     needs: semantic-versioning
