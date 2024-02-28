@@ -109,7 +109,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build production images
         run: |
-          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-prod:latest
+          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-prod:latest .
       - name: Security Scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
