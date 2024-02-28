@@ -96,6 +96,9 @@ jobs:
   build-and-push-production:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
+    environment: 
+      name: production
+      url: ${{ steps.deploy.outputs.deployment-url }}
     steps:
       - name: Checkout main
         uses: actions/checkout@v3  
@@ -122,8 +125,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
-          release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
-          body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
+          tag_name: 1
+          release_name: test
+          body: "12345"
+
+          #tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
+          #release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
+          #body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
 
 
