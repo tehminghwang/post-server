@@ -77,7 +77,6 @@ jobs:
 
       # ${{ env.CI_POSTSERVER_IMAGE }}
 
-
       # Optionally, build and push production images similarly, using PROD_POSTSERVER_IMAGE
 
       # This step is optional and can be used if you wish to also build and push production images directly.
