@@ -50,9 +50,9 @@ jobs:
         uses: anothrNick/github-tag-action@1.26.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch # Default to 'patch' but can be overridden by commit message
+          default_bump: patch 
           release_branches: main
-          with_v: true # Prefix the tag with 'v', e.g., 'v1.4.2'
+          with_v: true 
       
       - name: Set up Docker Image Env
         run: |
