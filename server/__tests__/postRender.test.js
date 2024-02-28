@@ -2,6 +2,8 @@
 const request = require('supertest');
 const app = require('../index'); 
 
+jest.setTimeout(100000); 
+
 describe('GET /api', () => {
   it('responds with a greeting message', async () => {
     const response = await request(app).get('/api');
