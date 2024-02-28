@@ -6,7 +6,7 @@ WORKDIR /my-app
 
 # Copy package.json and package-lock.json to the container
 COPY package*.json ./
-RUN ls
+RUN echo "Listing contents of /my-app directory:" && ls -la
 
 # Install dependencies
 RUN npm install
