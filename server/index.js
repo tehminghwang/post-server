@@ -221,3 +221,12 @@ app.post('/api/comments', async (req, res) => {
 app.listen(PORT, IP_ADDRESS, () => {
   console.log(`Server listening on ${IP_ADDRESS}:${PORT}`);
 });
+
+if (process.env.NODE_ENV === 'test') {
+    module.exports = app;
+  } else {
+    app.listen(PORT, IP_ADDRESS, () => {
+      console.log(`Server listening on ${IP_ADDRESS}:${PORT}`);
+    });
+  }
+  
