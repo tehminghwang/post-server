@@ -48,14 +48,12 @@ jobs:
           fetch-depth: 0 
 
       - name: Bump version and push tag
-        #id: tag_version
         uses: anothrNick/github-tag-action@1.64.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch 
-          #release_branches: main
-          with_v: true 
-          PRERELEASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch 
+          WITH_V: true
+          PRERELEASE: false
       
       - name: Set up Docker Image Env
         run: |
