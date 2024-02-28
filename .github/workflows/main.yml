@@ -8,7 +8,22 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js '20.x'
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - name: Install Dependencies
+      run: npm ci
+    - name: Lint and Automatically Fix
+      run: npm run lint:fix
+
   build-and-unit-tests:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -78,8 +93,6 @@ jobs:
       # ${{ env.CI_POSTSERVER_IMAGE }}
 
       # Optionally, build and push production images similarly, using PROD_POSTSERVER_IMAGE
-
-
 
       # This step is optional and can be used if you wish to also build and push production images directly.
       # Production images could be based on a different criteria, such as tagging a release.
