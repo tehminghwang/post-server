@@ -39,6 +39,8 @@ jobs:
   semantic-versioning:
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -46,13 +48,14 @@ jobs:
           fetch-depth: 0 
 
       - name: Bump version and push tag
-        id: tag_version
-        uses: anothrNick/github-tag-action@1.26.0
+        #id: tag_version
+        uses: anothrNick/github-tag-action@1.64.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: patch 
-          release_branches: main
+          #release_branches: main
           with_v: true 
+          PRERELEASE: true
       
       - name: Set up Docker Image Env
         run: |
