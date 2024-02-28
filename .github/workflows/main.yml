@@ -72,7 +72,7 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest
+          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest .
           docker push ghcr.io/tehminghwang/postserver-ci:latest
 
       # ${{ env.CI_POSTSERVER_IMAGE }}
