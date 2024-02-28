@@ -72,7 +72,7 @@ jobs:
           echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
           echo "PROD_POSTSERVER_IMAGE=${PROD_POSTSERVER_IMAGE}"
 
-  build-and-push:
+  build-and-push-ci:
     needs: semantic-versioning
     runs-on: ubuntu-latest
     steps:
@@ -88,22 +88,40 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ${{ CI_POSTSERVER_IMAGE }} .
-          docker push ${{ CI_POSTSERVER_IMAGE }}
+          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest .
+          docker push ghcr.io/tehminghwang/postserver-ci:latest
 
       # ${{ env.CI_POSTSERVER_IMAGE }}      ghcr.io/tehminghwang/postserver-ci:latest
 
-      # Optionally, build and push production images similarly, using PROD_POSTSERVER_IMAGE
+  build-and-push-production:
+    needs: build-and-push-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v3  
+      - name: Dependency Check
+        run: npm audit --production --audit-level=high
+      - name: Security Scan
+        run: |
+          docker build -t ghcr.io/tehminghwang/postserver-ci:latest .
+          trivy image --severity HIGH,CRITICAL my-app-image
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push production images
+        run: |
+          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-prod:latest
+          docker push ghcr.io/tehminghwang/postserver-prod:latest
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
+          release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
+          body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
 
-      # This step is optional and can be used if you wish to also build and push production images directly.
-      # Production images could be based on a different criteria, such as tagging a release.
-      # - name: Build and push production images
-      #   run: |
-      #     docker build ./website -f ./website/Dockerfile -t ${{ env.PROD_WEBSITE_IMAGE }}
-      #     docker push ${{ env.PROD_WEBSITE_IMAGE }}
-      #     docker build ./nginx -f ./nginx/Dockerfile -t ${{ env.PROD_NGINX_IMAGE }}
-      #     docker push ${{ env.PROD_NGINX_IMAGE }}
 
-
-  # Additional jobs such as deployment can be added here.
-  # The deployment step can be customized based on your target environment.
