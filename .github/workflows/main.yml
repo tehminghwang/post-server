@@ -61,7 +61,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   semantic-versioning:
-    needs: [security-SAST, codeQL-analysis, security-SAST]
+    needs: [security-SAST, codeQL-analysis, build-and-unit-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -124,16 +124,16 @@ jobs:
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
   security-SAST-Container:
-  needs: build-and-push-ci
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v3
-    - name: Run Anchore Engine Scan
-      uses: anchore/scan-action@v3
-      with:
-        image: ghcr.io/tehminghwang/postserver-ci:latest
-        fail-build: true
-        acs-report-enable: true
+    needs: build-and-push-ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Anchore Engine Scan
+        uses: anchore/scan-action@v3
+        with:
+          image: ghcr.io/tehminghwang/postserver-ci:latest
+          fail-build: true
+          acs-report-enable: true
 
   security-DAST-URL:
     needs: build-and-push-ci
