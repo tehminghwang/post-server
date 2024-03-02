@@ -137,6 +137,16 @@ jobs:
       with:
         target: "xxxxx"
 
+  performance-test:
+    needs: build-and-push-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Lighthouse
+        if: false
+        uses: treosh/lighthouse-ci-action@v8
+        with:
+          urls: 'xxxxx'
+
   build-and-push-production:
     needs: [semantic-versioning, security-DAST]
     runs-on: ubuntu-latest
