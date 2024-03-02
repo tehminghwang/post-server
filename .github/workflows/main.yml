@@ -36,23 +36,6 @@ jobs:
     - run: npm run build --if-present
     - run: npm test -- --forceExit --detectOpenHandles
 
-  security-SAST:
-    runs-on: ubuntu-latest
-    if: false
-    steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/nodemaster
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
-
   semantic-versioning:
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
