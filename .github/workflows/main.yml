@@ -37,8 +37,6 @@ jobs:
     - run: npm test -- --forceExit --detectOpenHandles
 
   semantic-versioning:
-    outputs:
-      new_tag: ${{ steps.tag_version.outputs.new_tag }}
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
     permissions:
@@ -74,6 +72,8 @@ jobs:
         run: |
           echo "CI_POSTSERVER_IMAGE=${CI_POSTSERVER_IMAGE}"
           echo "PROD_POSTSERVER_IMAGE=${PROD_POSTSERVER_IMAGE}"
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
 
   build-and-push-ci:
     needs: semantic-versioning
@@ -100,7 +100,7 @@ jobs:
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
   build-and-push-production:
-    needs: build-and-push-ci
+    needs: [semantic-versioning, build-and-push-ci]
     runs-on: ubuntu-latest
     environment: 
       name: production
@@ -131,9 +131,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.semantic-versioning.steps.tag_version.outputs.new_tag }}
-          release_name: Release ${{ needs.semantic-versioning.steps.tag_version.outputs.new_tag }}
-          body: "New release ${{ needs.semantic-versioning.steps.tag_version.outputs.new_tag }}"
+          tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
+          release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
+          body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
 
 #${{ steps.tag_version.outputs.new_tag }}
 
