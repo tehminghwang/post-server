@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     if: true
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true
@@ -49,6 +49,8 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --sarif-file-output=snyk.sarif
+      - name: List files in the directory
+        run: ls -la
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v2
         with:
