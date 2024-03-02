@@ -48,6 +48,7 @@ jobs:
           fetch-depth: '0' 
 
       - name: Bump version and push tag
+        id: tag_version
         uses: anothrNick/github-tag-action@1.64.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,8 +97,6 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
-      # ${{ env.CI_POSTSERVER_IMAGE }}      ghcr.io/tehminghwang/postserver-ci:latest
-
   build-and-push-production:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
@@ -130,8 +129,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
-          release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
-          body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: "New release ${{ steps.tag_version.outputs.new_tag }}"
 
 
