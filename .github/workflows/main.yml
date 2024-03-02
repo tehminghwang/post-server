@@ -40,23 +40,12 @@ jobs:
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@master
       - name: Run Snyk to check for vulnerabilities
-        if: false
-        uses: snyk/actions/node@master
+        uses: snyk/actions/maven@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk.sarif
-      - name: List files in the directory
-        if: false
-        run: ls -la
-      - name: Upload result to GitHub Code Scanning
-        if: false
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
 
   semantic-versioning:
     needs: security-SAST
@@ -163,10 +152,12 @@ jobs:
         run: |
           docker push ghcr.io/tehminghwang/postserver-prod:latest
       - name: Create GitHub Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
-          body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
+          body_path: changelog.txt
+          draft: false
+          prerelease: false
