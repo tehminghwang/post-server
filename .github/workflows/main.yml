@@ -35,8 +35,10 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test -- --forceExit --detectOpenHandles
-  
+
   semantic-versioning:
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
     permissions:
@@ -129,8 +131,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          release_name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: "New release ${{ steps.tag_version.outputs.new_tag }}"
+          tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
+          release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
+          body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
 
+#${{ steps.tag_version.outputs.new_tag }}
 
+#needs.semantic-versioning.steps.tag_version.outputs.new_tag
+
+#steps.tag_version.outputs.new_tag
