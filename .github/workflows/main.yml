@@ -115,8 +115,8 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest .
-          docker push ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
+          docker build -f ./Dockerfile -t "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest" .
+          docker push "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest"
       
       - name: Security Scan for CI
         run: |
