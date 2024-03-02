@@ -130,12 +130,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 1
-          release_name: test
-          body: "12345"
-
-          #tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
-          #release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
-          #body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
+          tag_name: ${{ steps.semantic-versioning.outputs.new_tag }}
+          release_name: Release ${{ steps.semantic-versioning.outputs.new_tag }}
+          body: "New release ${{ steps.semantic-versioning.outputs.new_tag }}"
 
 
