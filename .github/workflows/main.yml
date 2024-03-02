@@ -36,6 +36,23 @@ jobs:
     - run: npm run build --if-present
     - run: npm test -- --forceExit --detectOpenHandles
 
+  security-SAST:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/nodemaster
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
+
   semantic-versioning:
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
@@ -91,13 +108,13 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest .
-          docker push ghcr.io/tehminghwang/postserver-ci:latest
+          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest .
+          docker push ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
       
       - name: Security Scan for CI
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-          trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
+          trivy image --severity HIGH,CRITICAL ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
 
   build-and-push-production:
     needs: [semantic-versioning, build-and-push-ci]
@@ -118,14 +135,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build production images
         run: |
-          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-prod:latest .
+          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest .
       - name: Security Scan Production
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-          trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-prod:latest
+          trivy image --severity HIGH,CRITICAL ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest
       - name: Push production images
         run: |
-          docker push ghcr.io/tehminghwang/postserver-prod:latest
+          docker push ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
@@ -134,11 +151,3 @@ jobs:
           tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
           body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
-
-#${{ steps.tag_version.outputs.new_tag }}
-
-#${{ needs.semantic-versioning.steps.tag_version.outputs.new_tag }}
-
-#needs.semantic-versioning.steps.tag_version.outputs.new_tag
-
-#steps.tag_version.outputs.new_tag
