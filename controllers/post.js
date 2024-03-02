@@ -1,4 +1,4 @@
-const {pool} = require('../../post-server/controllers/pools');
+const {pool} = require('./pools');
 
 const createPost = async (queryParameters) => {
   try {
