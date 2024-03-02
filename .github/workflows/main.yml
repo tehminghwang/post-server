@@ -49,7 +49,7 @@ jobs:
 
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.64.0
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch 
           WITH_V: true
@@ -90,6 +90,11 @@ jobs:
         run: |
           docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest .
           docker push ghcr.io/tehminghwang/postserver-ci:latest
+      
+      - name: Security Scan for CI
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
       # ${{ env.CI_POSTSERVER_IMAGE }}      ghcr.io/tehminghwang/postserver-ci:latest
 
@@ -113,7 +118,7 @@ jobs:
       - name: Build production images
         run: |
           docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-prod:latest .
-      - name: Security Scan
+      - name: Security Scan Production
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-prod:latest
