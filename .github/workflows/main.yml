@@ -36,8 +36,26 @@ jobs:
     - run: npm run build --if-present
     - run: npm test -- --forceExit --detectOpenHandles
 
-  semantic-versioning:
+  security-SAST:
     needs: build-and-unit-tests
+    runs-on: ubuntu-latest
+    if: true
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/nodemaster
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
+
+  semantic-versioning:
+    needs: security-SAST
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -99,8 +117,21 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
+  security-DAST:
+    needs: build-and-push-ci
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: OWASP ZAP Scan
+      uses: zaproxy/action-baseline@v0.4.0
+      with:
+        target: "xxxxx"
+
   build-and-push-production:
-    needs: [semantic-versioning, build-and-push-ci]
+    needs: [semantic-versioning, security-DAST]
     runs-on: ubuntu-latest
     environment: 
       name: production
