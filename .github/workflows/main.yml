@@ -22,7 +22,7 @@ jobs:
     - name: Lint and Automatically Fix
       run: npm run lint:fix
 
-  build-and-unit-tests:
+  unit-and-integration-tests:
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   semantic-versioning:
-    needs: [security-SAST-code, codeQL-analysis, build-and-unit-tests]
+    needs: [security-SAST-code, codeQL-analysis, unit-and-integration-tests]
     runs-on: ubuntu-latest
     permissions:
       contents: write
