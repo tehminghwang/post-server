@@ -148,7 +148,7 @@ jobs:
           urls: 'xxxxx'
 
   build-and-push-production:
-    needs: [semantic-versioning, security-DAST]
+    needs: [semantic-versioning, security-DAST, performance-test]
     runs-on: ubuntu-latest
     environment: 
       name: production
