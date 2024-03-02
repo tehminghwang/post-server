@@ -160,6 +160,7 @@ jobs:
           urls: 'xxxxx'
 
   prepare-release:
+    needs: build-and-push-ci
     runs-on: ubuntu-latest
     outputs:
       commit-message: ${{ steps.commit-message.outputs.message }}
@@ -171,7 +172,7 @@ jobs:
         run: echo "::set-output name=message::$(git log -1 --pretty=%B)"
 
   build-and-push-production:
-    needs: [semantic-versioning, security-DAST, performance-test, prepare-release]
+    needs: [semantic-versioning, security-DAST-URL, performance-test, prepare-release, security-DAST-URL]
     runs-on: ubuntu-latest
     environment: 
       name: production
