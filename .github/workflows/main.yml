@@ -59,6 +59,7 @@ jobs:
   semantic-versioning:
     needs: security-SAST
     runs-on: ubuntu-latest
+    if: false
     permissions:
       contents: write
     steps:
