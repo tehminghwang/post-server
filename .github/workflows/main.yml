@@ -108,13 +108,13 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest .
-          docker push ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
+          docker build -f ./Dockerfile -t "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest" .
+          docker push "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest"
       
       - name: Security Scan for CI
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-          trivy image --severity HIGH,CRITICAL ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
+          trivy image --severity HIGH,CRITICAL "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest"
 
   build-and-push-production:
     needs: [semantic-versioning, build-and-push-ci]
@@ -135,14 +135,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build production images
         run: |
-          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest .
+          docker build -f ./Dockerfile -t "${{ secrets.GHCR_PREFIX }}/postserver-prod:latest" .
       - name: Security Scan Production
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-          trivy image --severity HIGH,CRITICAL ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest
+          trivy image --severity HIGH,CRITICAL "${{ secrets.GHCR_PREFIX }}/postserver-prod:latest"
       - name: Push production images
         run: |
-          docker push ${{ secrets.GHCR_PREFIX }}/postserver-prod:latest
+          docker push "${{ secrets.GHCR_PREFIX }}/postserver-prod:latest"
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
