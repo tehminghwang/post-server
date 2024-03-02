@@ -50,6 +50,7 @@ jobs:
   codeQL-analysis:
     needs: lint
     runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Initialize CodeQL
@@ -172,4 +173,3 @@ jobs:
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
           body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
 
-          
