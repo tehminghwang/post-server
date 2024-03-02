@@ -40,12 +40,17 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - uses: actions/checkout@v3
+      - name: Run sast-scan for SAST
+        uses: AppThreat/sast-scan-action@v1.0.2
+        with:
+          type: "nodejs"
+
+      - name: Upload sast-scan reports to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: sast-scan-reports
+          path: reports/
 
   codeQL-analysis:
     needs: lint
