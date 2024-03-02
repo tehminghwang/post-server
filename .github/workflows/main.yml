@@ -123,7 +123,19 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
-  security-DAST:
+  security-SAST-Container:
+  needs: build-and-push-ci
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+    - name: Run Anchore Engine Scan
+      uses: anchore/scan-action@v3
+      with:
+        image: ghcr.io/tehminghwang/postserver-ci:latest
+        fail-build: true
+        acs-report-enable: true
+
+  security-DAST-URL:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
     steps:
@@ -147,8 +159,19 @@ jobs:
         with:
           urls: 'xxxxx'
 
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      commit-message: ${{ steps.commit-message.outputs.message }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Get the last commit message
+        id: commit-message
+        run: echo "::set-output name=message::$(git log -1 --pretty=%B)"
+
   build-and-push-production:
-    needs: [semantic-versioning, security-DAST, performance-test]
+    needs: [semantic-versioning, security-DAST, performance-test, prepare-release]
     runs-on: ubuntu-latest
     environment: 
       name: production
@@ -181,5 +204,5 @@ jobs:
         with:
           tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
-          body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
+          body: ${{ needs.prepare-release.outputs.commit-message }}
 
