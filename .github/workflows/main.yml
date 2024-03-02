@@ -37,7 +37,7 @@ jobs:
     - run: npm test -- --forceExit --detectOpenHandles
 
   security-SAST:
-    needs: build-and-unit-tests
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -47,8 +47,20 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
+  codeQL-analysis:
+    needs: lint
+    runs-on: ubuntu-latest
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'javascript'
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
   semantic-versioning:
-    needs: security-SAST
+    needs: [security-SAST, codeQL-analysis, security-SAST]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -152,12 +164,12 @@ jobs:
         run: |
           docker push ghcr.io/tehminghwang/postserver-prod:latest
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.semantic-versioning.outputs.new_tag }}
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
-          body_path: changelog.txt
-          draft: false
-          prerelease: false
+          body: "New release ${{ needs.semantic-versioning.outputs.new_tag }}"
+
+          
