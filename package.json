@@ -29,13 +29,18 @@
   "scripts": {
     "start": "NODE_ENV=prod node app.js",
     "test": "jest test",
-    "dev": "NODE_ENV=dev nodemon app.js"
+    "dev": "NODE_ENV=dev nodemon app.js",
+    "lint": "eslint ./controllers/ ./routers/ ./tests/ ",
+    "lint:fix": "eslint ./controllers/ ./routers/ ./tests/ --fix"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@flydotio/dockerfile": "^0.4.10",
+    "eslint": "^8.57.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.33.2",
     "jest": "^29.7.0"
   }
 }

@@ -1,4 +1,4 @@
-const { pool } = require("./pools");
+const {pool} = require('./pools');
 
 const createPost = async (queryParameters) => {
   try {
@@ -13,20 +13,22 @@ const createPost = async (queryParameters) => {
       active,
     } = queryParameters;
     const [result] = await pool.query(
-      `
-            INSERT INTO posts (userid, create_timestamp, last_update_timestamp, interestid, header, description, visibility, active) 
+        `
+            INSERT INTO posts (userid, create_timestamp, 
+            last_update_timestamp, interestid, header, 
+            description, visibility, active) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `,
-      [
-        userId,
-        createTimestamp,
-        lastUpdateTimestamp,
-        interestid,
-        header,
-        description,
-        visibilityBoolean,
-        active,
-      ]
+        [
+          userId,
+          createTimestamp,
+          lastUpdateTimestamp,
+          interestid,
+          header,
+          description,
+          visibilityBoolean,
+          active,
+        ],
     );
     return result;
   } catch (error) {
@@ -34,4 +36,4 @@ const createPost = async (queryParameters) => {
   }
 };
 
-module.exports = { createPost };
+module.exports = {createPost};
