@@ -1,12 +1,9 @@
 {
   "dependencies": {
-    "@google-cloud/bigquery": "^7.3.0",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
-    "bigquery": "^0.0.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "create-react-app": "^1.2.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
@@ -16,12 +13,11 @@
     "mysql2": "^3.9.1",
     "node": "^20.7.0",
     "nodemon": "^3.0.1",
-    "npm": "^10.2.4",
+    "npm": "^10.5.0",
     "redis": "^4.6.13",
     "start": "^5.1.0",
     "string-hash": "^1.1.3",
-    "supertest": "^6.3.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.0/xlsx-0.20.0.tgz"
+    "supertest": "^6.3.4"
   },
   "name": "backend",
   "version": "1.0.0",
