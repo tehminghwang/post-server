@@ -1,5 +1,5 @@
 require('dotenv').config();
-const NewsfeedRouter = require('./routers/newsfeed');
+const NewsfeedRouter = require('../backend/routers/newsfeed');
 const express = require('express');
 const app = express();
 const cors = require('cors');

@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-unused-vars */
 const Router = require('express').Router();
-const postFunction = require('../controllers/post');
+const postFunction = require('../../backend/controllers/post');
 
 Router.post('/api/createPosts', async (req, res) => {
   // Extract comment details from the request body

@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
 /* eslint-disable camelcase */
-const {pool} = require('../controllers/pools');
+const {pool} = require('../../post-server/controllers/pools');
+const Router = require('express').Router();
 
 const getLikes = async (queryParameters) => {
   try {
