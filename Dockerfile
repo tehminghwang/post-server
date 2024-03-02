@@ -21,4 +21,4 @@ COPY . .
 # Build the React app
 EXPOSE 3001
 #CMD ["npm", "start"]
-CMD ["node", "server/index.js"]
+CMD ["node", "app.js"]
