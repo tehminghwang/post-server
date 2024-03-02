@@ -36,7 +36,7 @@ jobs:
     - run: npm run build --if-present
     - run: npm test -- --forceExit --detectOpenHandles
 
-  security-SAST:
+  security-SAST-code:
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -115,15 +115,15 @@ jobs:
 
       - name: Build and push CI images
         run: |
-          docker build -f ./Dockerfile -t ghcr.io/tehminghwang/postserver-ci:latest .
-          docker push ghcr.io/tehminghwang/postserver-ci:latest
+          docker build -f ./Dockerfile -t ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest .
+          docker push ${{ secrets.GHCR_PREFIX }}/postserver-ci:latest
       
       - name: Security Scan for CI
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
           trivy image --severity HIGH,CRITICAL ghcr.io/tehminghwang/postserver-ci:latest
 
-  security-SAST-Container:
+  security-SAST-Container-CI:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
     steps:
@@ -136,7 +136,7 @@ jobs:
           fail-build: true
           acs-report-enable: true
 
-  security-DAST-URL:
+  security-DAST-Staging-URL:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
     steps:
