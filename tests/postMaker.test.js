@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-const {createPost} = require('../../backend/controllers/post');
 const request = require('supertest');
 const express = require('express');
 const cors = require('cors');
