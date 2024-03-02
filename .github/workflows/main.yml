@@ -140,7 +140,8 @@ jobs:
         with:
           image: "${{ secrets.GHCR_PREFIX }}/postserver-ci:latest"
           fail-build: true
-          acs-report-enable: true
+          output-format: 'table'
+          severity-cutoff: 'medium'
 
   security-DAST-Staging-URL:
     needs: build-and-push-ci
@@ -178,7 +179,7 @@ jobs:
         id: commit-message
         run: echo "::set-output name=message::$(git log -1 --pretty=%B)"
 
-  build-and-push-production:
+  build-and-test-production:
     needs: [semantic-versioning, security-DAST-Staging-URL, performance-test, prepare-release, security-SAST-Container-CI]
     runs-on: ubuntu-latest
     environment: 
@@ -214,3 +215,9 @@ jobs:
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
           body: ${{ needs.prepare-release.outputs.commit-message }}
 
+  push-to-aws-production:
+    needs: build-and-test-production
+    runs-on: ubuntu-latest
+    environment: 
+      name: production_aws
+    steps:
