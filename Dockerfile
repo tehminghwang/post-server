@@ -17,6 +17,7 @@ COPY . .
 # Build the React app
 #RUN npm run build
 
+
 # Build the React app
 EXPOSE 3001
 #CMD ["npm", "start"]
