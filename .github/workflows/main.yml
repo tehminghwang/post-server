@@ -39,10 +39,10 @@ jobs:
   security-SAST:
     needs: build-and-unit-tests
     runs-on: ubuntu-latest
-    if: false
     steps:
       - uses: actions/checkout@v3
       - name: Run Snyk to check for vulnerabilities
+        if: false
         uses: snyk/actions/node@master
         continue-on-error: true
         env:
@@ -50,8 +50,10 @@ jobs:
         with:
           args: --sarif-file-output=snyk.sarif
       - name: List files in the directory
+        if: false
         run: ls -la
       - name: Upload result to GitHub Code Scanning
+        if: false
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk.sarif
@@ -122,12 +124,13 @@ jobs:
   security-DAST:
     needs: build-and-push-ci
     runs-on: ubuntu-latest
-    if: false
     steps:
     - name: Checkout
+      if: false
       uses: actions/checkout@v2
     
     - name: OWASP ZAP Scan
+      if: false
       uses: zaproxy/action-baseline@v0.4.0
       with:
         target: "xxxxx"
