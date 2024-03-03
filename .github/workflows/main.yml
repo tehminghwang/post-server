@@ -94,8 +94,9 @@ jobs:
         if: steps.tag_version.outputs.new_tag == ''
         run: |
           echo "Fallback tag is being used because no new tag was generated."
-          echo "CI_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-ci:latest" >> $GITHUB_ENV
+          echo "CI_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-ci:latest" >> $GITHUB_ENV   
           echo "PROD_POSTSERVER_IMAGE=${{ secrets.GHCR_PREFIX }}/postserver-prod:latest" >> $GITHUB_ENV
+      #configure ${{ secrets.GHCR_PREFIX }} on github secrets with your prefix i.e. ghcr.io/<github name>
 
       - name: Recording image names
         run: |
@@ -227,7 +228,7 @@ jobs:
       name: production_aws
     env:
       CLUSTER_NAME: connectu-posts # Replace with your actual cluster name
-      SERVICE_NAME: posts # Replace with your actual service name
+      SERVICE_NAME: dynamic-posts # Replace with your actual service name
       AWS_REGION: eu-west-2 # London
 
     steps:
