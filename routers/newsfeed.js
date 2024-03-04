@@ -82,11 +82,10 @@ async function searchDatabaseByPostId(postid) {
             universities un ON u.universityid = un.universityid
         INNER JOIN 
             interest c ON p.interestid = c.interestid
-        WHERE postid = ?
+        WHERE l.postid = ?
     `;
   const params = [postid];
-  const results = await pool.query(query, params);
-  return results;
+  return await pool.query(query, params);
 }
 
 const addLikes = async (queryParameters) => {
