@@ -62,24 +62,63 @@ const getTotalMetrics = async (queryParameters) => {
   }
 };
 
+// eslint-disable-next-line require-jsdoc
+async function searchDatabaseByPostId(postid) {
+  const query = `
+        SELECT 
+            p.postid, p.userid, p.create_timestamp, 
+            p.last_update_timestamp, p.interestid, 
+            p.header, p.description, p.visibility, p.active, 
+            COUNT(DISTINCT l.like_userid) AS number_of_likes, 
+            u.firstname, u.lastname, u.email, 
+            u.universityid, un.university, c.interest
+        FROM 
+            posts p
+        LEFT JOIN 
+            likes l ON p.postid = l.postid
+        INNER JOIN 
+            users u ON p.userid = u.userid
+        INNER JOIN 
+            universities un ON u.universityid = un.universityid
+        INNER JOIN 
+            interest c ON p.interestid = c.interestid
+        WHERE postid = ?
+    `;
+  const params = [postid];
+  const results = await pool.query(query, params);
+  return results;
+}
+
 const addLikes = async (queryParameters) => {
+  // Connect to the Redis server
+  const client = redis.createClient({
+    url: process.env.REDIS_URL,
+  });
+  client.on('error', (error) => {
+    console.error(`Redis error: ${error}`);
+  });
+  client.connect();
   try {
+    const latestPostId = await client.get('latestPostId');
     const {postid, like_userid, like_timestamp, add_operation} =
       queryParameters;
+    let query;
+    let params;
     if (add_operation) {
-      const [likes] = await pool.query(
-          `INSERT INTO likes (postid, like_userid, 
-            like_timestamp) VALUES (?,?,?)`,
-          [postid, like_userid, like_timestamp],
-      );
-      return likes;
+      // eslint-disable-next-line max-len
+      query = `INSERT INTO likes (postid, like_userid, like_timestamp) VALUES (?,?,?)`;
+      params = [postid, like_userid, like_timestamp];
     } else {
-      const [likes] = await pool.query(
-          'DELETE FROM likes WHERE postid = ? AND like_userid = ?',
-          [postid, like_userid],
-      );
-      return likes;
+      query = 'DELETE FROM likes WHERE postid = ? AND like_userid = ?';
+      params = [postid, like_userid];
     }
+    const [likes] = await pool.query(query, params);
+    if (postid > parseInt(latestPostId) - 10) {
+      const postToUpdate = await searchDatabaseByPostId(postid);
+      await client.set(postid.toString(), JSON.stringify(postToUpdate));
+    }
+    client.quit();
+    return likes;
   } catch (error) {
     throw error;
   }
@@ -206,6 +245,7 @@ const getEnhancedxPosts = async (queryParameters) => {
       await client.set('latestPostId', results[0].postid.toString());
       // eslint-disable-next-line max-len
       await client.set(results[0].postid.toString(), JSON.stringify(results[0]));
+      // Clear old posts from cache (maintains only 10 most recent)
       const oldPostId = results[0].postid - 10;
       const oldPost = await client.get(oldPostId.toString());
       if (oldPost) {
