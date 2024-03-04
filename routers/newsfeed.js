@@ -82,7 +82,7 @@ async function searchDatabaseByPostId(postid) {
             universities un ON u.universityid = un.universityid
         INNER JOIN 
             interest c ON p.interestid = c.interestid
-        WHERE l.postid = ?
+        WHERE p.postid = ?
     `;
   const params = [postid];
   return await pool.query(query, params);
@@ -152,6 +152,24 @@ const getEnhancedxPosts = async (queryParameters) => {
   const limit1 = queryParameters.num ? parseInt(queryParameters.num, 10) : 10;
   const page = queryParameters.page ? parseInt(queryParameters.page, 10) : 1;
   const offset = (page - 1) * limit1;
+  // If default newsfeed with no filters, retrieve from cache
+  // eslint-disable-next-line max-len
+  if (limit1 === 10 && page === 1 && !queryParameters.postid && !queryParameters.userid && !queryParameters.interestid) {
+    const results = [];
+    const cachedPostId = await client.get('latestPostId');
+    let cachedPostNum = parseInt(cachedPostId);
+    for (let i = 0; i < 10; i++) {
+      const tempResult = await client.get(cachedPostNum.toString());
+      if (tempResult) {
+        results[i] = JSON.parse(tempResult);
+      }
+      cachedPostNum--;
+    }
+    if (results.length === 10) {
+      await client.quit();
+      return results;
+    }
+  }
   let baseQuery = `
         SELECT 
             p.postid, p.userid, p.create_timestamp, 
