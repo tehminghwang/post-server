@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 const {pool} = require('../controllers/pools');
 const Router = require('express').Router();
+const redis = require('redis');
 
 const getLikes = async (queryParameters) => {
   try {
@@ -103,6 +104,13 @@ const postComments = async (queryParameters) => {
 };
 
 const getEnhancedxPosts = async (queryParameters) => {
+  // Connect to the Redis server
+  const client = redis.createClient({
+    url: process.env.REDIS_URL,
+  });
+  client.on('error', (error) => {
+    console.error(`Redis error: ${error}`);
+  });
   const limit1 = queryParameters.num ? parseInt(queryParameters.num, 10) : 10;
   const page = queryParameters.page ? parseInt(queryParameters.page, 10) : 1;
   const offset = (page - 1) * limit1;
@@ -192,6 +200,13 @@ const getEnhancedxPosts = async (queryParameters) => {
     const [results] = await pool.query(baseQuery, queryParams);
     if (queryParameters.sortOrder === 'asc') {
       results.reverse();
+    }
+    if (limit1 === 1 && page === 1) {
+      await client.connect();
+      await client.set('latestPostId', results[0].postid.toString());
+      // eslint-disable-next-line max-len
+      await client.set(results[0].postid.toString(), JSON.stringify(results[0]));
+      await client.quit();
     }
     return results;
   } catch (error) {
