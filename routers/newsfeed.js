@@ -206,6 +206,11 @@ const getEnhancedxPosts = async (queryParameters) => {
       await client.set('latestPostId', results[0].postid.toString());
       // eslint-disable-next-line max-len
       await client.set(results[0].postid.toString(), JSON.stringify(results[0]));
+      const oldPostId = results[0].postid - 10;
+      const oldPost = await client.get(oldPostId.toString());
+      if (oldPost) {
+        await client.del(oldPostId.toString());
+      }
       await client.quit();
     }
     return results;
