@@ -1,8 +1,8 @@
 /* eslint-disable new-cap */
 /* eslint-disable camelcase */
 const {pool} = require('../controllers/pools');
+const {client} = require('../controllers/pools');
 const Router = require('express').Router();
-const redis = require('redis');
 
 const getLikes = async (queryParameters) => {
   try {
@@ -89,14 +89,6 @@ async function searchDatabaseByPostId(postid) {
 }
 
 const addLikes = async (queryParameters) => {
-  // Connect to the Redis server
-  const client = redis.createClient({
-    url: process.env.REDIS_URL,
-  });
-  client.on('error', (error) => {
-    console.error(`Redis error: ${error}`);
-  });
-  client.connect();
   try {
     const latestPostId = await client.get('latestPostId');
     const {postid, like_userid, like_timestamp, add_operation} =
@@ -116,7 +108,6 @@ const addLikes = async (queryParameters) => {
       const [postToUpdate] = await searchDatabaseByPostId(postid);
       await client.set(postid.toString(), JSON.stringify(postToUpdate[0]));
     }
-    await client.quit();
     return likes;
   } catch (error) {
     throw error;
@@ -142,19 +133,11 @@ const postComments = async (queryParameters) => {
 };
 
 const getEnhancedxPosts = async (queryParameters) => {
-  // Connect to the Redis server
-  const client = redis.createClient({
-    url: process.env.REDIS_URL,
-  });
-  client.on('error', (error) => {
-    console.error(`Redis error: ${error}`);
-  });
   const limit1 = queryParameters.num ? parseInt(queryParameters.num, 10) : 10;
   const page = queryParameters.page ? parseInt(queryParameters.page, 10) : 1;
   const offset = (page - 1) * limit1;
   // If default newsfeed with no filters, retrieve from cache
   if (limit1 === 10 && page === 1) {
-    await client.connect();
     const results = [];
     const cachedPostId = await client.get('latestPostId');
     for (let i = parseInt(cachedPostId); i > parseInt(cachedPostId) - 10; i--) {
@@ -167,7 +150,6 @@ const getEnhancedxPosts = async (queryParameters) => {
     }
     console.log(results);
     if (results.length === 10) {
-      await client.quit();
       return results;
     }
   }
@@ -259,7 +241,6 @@ const getEnhancedxPosts = async (queryParameters) => {
       results.reverse();
     }
     if (limit1 === 1 && page === 1) {
-      await client.connect();
       await client.set('latestPostId', results[0].postid.toString());
       // eslint-disable-next-line max-len
       await client.set(results[0].postid.toString(), JSON.stringify(results[0]));
@@ -269,7 +250,6 @@ const getEnhancedxPosts = async (queryParameters) => {
       if (oldPost) {
         await client.del(oldPostId.toString());
       }
-      await client.quit();
     }
     console.log(results);
     return results;

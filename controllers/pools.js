@@ -52,4 +52,12 @@ const pool = mysql.createPool({
   port: process.env.MYSQL_PORT,
 });
 
-module.exports = {pool, pools};
+const client = redis.createClient({
+  url: process.env.REDIS_URL,
+});
+client.on('error', (error) => {
+  console.error(`Redis error: ${error}`);
+});
+await client.connect();
+
+module.exports = {pool, pools, client};
