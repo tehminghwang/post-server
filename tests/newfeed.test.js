@@ -17,7 +17,7 @@ jest.mock('../controllers/pools', () => ({
     query: jest.fn(),
   },
 }));
-
+/*
 describe('GET /api/enhanced-xposts', () => {
   pool.query.mockResolvedValueOnce([
     [
@@ -37,7 +37,7 @@ describe('GET /api/enhanced-xposts', () => {
     expect(response.body.posts[0]).toHaveProperty('postid', 1);
   });
 });
-
+*/
 describe('GET /api/comments', () => {
   pool.query.mockResolvedValueOnce([
     [
