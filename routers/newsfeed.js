@@ -164,6 +164,7 @@ const getEnhancedxPosts = async (queryParameters) => {
       }
       cachedPostNum--;
     }
+    console.log(results);
     if (results.length === 10) {
       await client.quit();
       return results;
@@ -269,6 +270,7 @@ const getEnhancedxPosts = async (queryParameters) => {
       }
       await client.quit();
     }
+    console.log(results);
     return results;
   } catch (error) {
     throw error;
