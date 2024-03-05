@@ -154,15 +154,15 @@ const getEnhancedxPosts = async (queryParameters) => {
   const offset = (page - 1) * limit1;
   // If default newsfeed with no filters, retrieve from cache
   if (limit1 === 10 && page === 1) {
+    await client.connect();
     const results = [];
     const cachedPostId = await client.get('latestPostId');
-    let cachedPostNum = parseInt(cachedPostId);
-    for (let i = 0; i < 10; i++) {
+    const cachedPostNum = parseInt(cachedPostId);
+    for (let i = cachedPostNum; i > cachedPostNum - 10; i--) {
       const tempResult = await client.get(cachedPostNum.toString());
       if (tempResult) {
-        results[i] = JSON.parse(tempResult);
+        results.push(JSON.parse(tempResult));
       }
-      cachedPostNum--;
     }
     console.log(results);
     if (results.length === 10) {
