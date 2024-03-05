@@ -153,8 +153,7 @@ const getEnhancedxPosts = async (queryParameters) => {
   const page = queryParameters.page ? parseInt(queryParameters.page, 10) : 1;
   const offset = (page - 1) * limit1;
   // If default newsfeed with no filters, retrieve from cache
-  if (limit1 === 10 && page === 1 && queryParameters.postid === null &&
-    !queryParameters.userid && queryParameters.interestid === null) {
+  if (limit1 === 10 && page === 1) {
     const results = [];
     const cachedPostId = await client.get('latestPostId');
     let cachedPostNum = parseInt(cachedPostId);
