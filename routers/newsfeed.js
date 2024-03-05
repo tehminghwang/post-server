@@ -113,7 +113,7 @@ const addLikes = async (queryParameters) => {
     }
     const [likes] = await pool.query(query, params);
     if (postid > parseInt(latestPostId) - 10) {
-      const postToUpdate = await searchDatabaseByPostId(postid);
+      const [postToUpdate] = await searchDatabaseByPostId(postid);
       await client.set(postid.toString(), JSON.stringify(postToUpdate[0]));
     }
     await client.quit();
