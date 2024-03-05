@@ -157,9 +157,10 @@ const getEnhancedxPosts = async (queryParameters) => {
     await client.connect();
     const results = [];
     const cachedPostId = await client.get('latestPostId');
-    const cachedPostNum = parseInt(cachedPostId);
-    for (let i = cachedPostNum; i > cachedPostNum - 10; i--) {
-      const tempResult = await client.get(cachedPostNum.toString());
+    for (let i = parseInt(cachedPostId); i > parseInt(cachedPostId) - 10; i--) {
+      const tempResult = await client.get(i.toString());
+      console.log(tempResult);
+      console.log(JSON.parse(tempResult));
       if (tempResult) {
         results.push(JSON.parse(tempResult));
       }
