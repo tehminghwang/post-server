@@ -221,11 +221,36 @@ jobs:
           release_name: Release ${{ needs.semantic-versioning.outputs.new_tag }}
           body: ${{ needs.prepare-release.outputs.commit-message }}
 
-  push-to-aws-production:
+  push-to-aws-dev:
     needs: build-and-test-production
     runs-on: ubuntu-latest
     environment: 
       name: production_aws
+    env:
+      CLUSTER_NAME: connectu-posts # Replace with your actual cluster name
+      SERVICE_NAME: dynamic-posts # Replace with your actual service name
+      AWS_REGION: eu-west-2 # London
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Force new deployment on ECS
+        run: |
+          aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ env.SERVICE_NAME }} --force-new-deployment
+
+  push-to-aws-production:
+    needs: push-to-aws-dev
+    runs-on: ubuntu-latest
+    environment: 
+      name: dev_aws
     env:
       CLUSTER_NAME: connectu-posts # Replace with your actual cluster name
       SERVICE_NAME: dynamic-posts # Replace with your actual service name
