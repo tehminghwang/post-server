@@ -17,27 +17,7 @@ jest.mock('../controllers/pools', () => ({
     query: jest.fn(),
   },
 }));
-/*
-describe('GET /api/enhanced-xposts', () => {
-  pool.query.mockResolvedValueOnce([
-    [
-      {
-        postid: 1,
-        header: 'Test Post',
-        description: 'This is a test',
-        number_of_likes: 5,
-      },
-    ],
-  ]);
 
-  it('fetches posts with enhanced details', async () => {
-    const response = await request(app).get('/api/enhanced-xposts');
-    expect(response.statusCode).toBe(200);
-    expect(response.body.posts).toHaveLength(1);
-    expect(response.body.posts[0]).toHaveProperty('postid', 1);
-  });
-});
-*/
 describe('GET /api/comments', () => {
   pool.query.mockResolvedValueOnce([
     [
@@ -86,7 +66,7 @@ describe('GET /api/interests', () => {
   });
 });
 
-/*
+
 describe('GET /api/getTotalMetrics', () => {
   pool.query.mockResolvedValueOnce([
     [{likes: {postscount: 7, likescount: 1, commentscount: 22}}],
@@ -137,5 +117,3 @@ describe('POST /api/comments', () => {
     );
   });
 });
-
- */
