@@ -15,7 +15,7 @@ console.error = jest.fn(); // Mock console.error
 
 jest.mock('../controllers/pools', () => ({
   pool: {
-    query: jest.fn().mockReturnValue(true), // Simulate successful query execution
+    query: jest.fn().mockReturnValue(true),
   },
 }));
 
